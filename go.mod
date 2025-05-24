@@ -1,4 +1,4 @@
-module postly
+module github.com/ekideno/postly
 
 go 1.24.2
 
