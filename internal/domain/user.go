@@ -15,3 +15,7 @@ type UserRepository interface {
 	GetByID(id string) (*User, error)
 	DeleteByID(id string) error
 }
+
+type UserService interface {
+	Create(user *User) error
+}
