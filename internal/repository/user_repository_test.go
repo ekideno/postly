@@ -15,7 +15,7 @@ func setupTestDB(t *testing.T) *UserRepository {
 		t.Fatalf("Error loading .env file: %v", err)
 	}
 
-	repo, err := NewGormUserRepository()
+	repo, err := NewUserRepository()
 	require.NoError(t, err)
 
 	err = repo.db.Exec("TRUNCATE TABLE users CASCADE").Error

@@ -17,7 +17,7 @@ type UserRepository struct {
 }
 
 func loadEnv() {
-	err := godotenv.Load("../../.env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("Warning: .env file not found, relying on system environment variables")
 	}
@@ -36,7 +36,7 @@ func getDSN() string {
 	)
 }
 
-func NewGormUserRepository() (*UserRepository, error) {
+func NewUserRepository() (*UserRepository, error) {
 	loadEnv()
 
 	dsn := getDSN()

@@ -1,12 +1,26 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/ekideno/postly/internal/handler"
+	"github.com/ekideno/postly/internal/repository"
+	"github.com/ekideno/postly/internal/service"
+	"github.com/gin-gonic/gin"
+)
 
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"hello": "Postly!"})
 	})
+
+	userRepository, err := repository.NewUserRepository()
+	if err != nil {
+		panic(err)
+	}
+	userService := service.NewUserService(userRepository)
+	userHandler := handler.NewUserHandler(userService)
+	
+	r.POST("/api/register", userHandler.Register)
 	return r
 }
 
