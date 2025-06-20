@@ -9,7 +9,7 @@ import (
 
 // TODO: Move all database values to nested struct as the main struct expands
 type Config struct {
-	DB_HOST     string `yaml:"env" env-default:"localhost"`
+	DB_HOST     string `yaml:"host" env-default:"localhost"`
 	DB_USER     string `yaml:"user" env-required:"true"`
 	DB_PASSWORD int    `yaml:"password" env-required:"true"`
 	DB_NAME     string `yaml:"name" env-required:"true"`
