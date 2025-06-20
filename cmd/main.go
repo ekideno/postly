@@ -3,8 +3,10 @@ package main
 import (
 	"github.com/ekideno/postly/internal/handler"
 	"github.com/ekideno/postly/internal/repository"
+	"github.com/ekideno/postly/internal/security"
 	"github.com/ekideno/postly/internal/service"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 func setupRouter() *gin.Engine {
@@ -17,7 +19,9 @@ func setupRouter() *gin.Engine {
 	if err != nil {
 		panic(err)
 	}
-	userService := service.NewUserService(userRepository)
+	jwtManager := security.NewJWTManager("sda*3oj9(FD4)324%34fk#1", time.Hour*24)
+
+	userService := service.NewUserService(userRepository, jwtManager)
 	userHandler := handler.NewUserHandler(userService)
 
 	api := r.Group("/api")
@@ -25,6 +29,9 @@ func setupRouter() *gin.Engine {
 
 	auth.POST("/register", userHandler.Register)
 	auth.POST("/login", userHandler.Login)
+
+	protected := api.Group("/")
+	protected.Use(jwtManager.AuthMiddleware())
 
 	return r
 }

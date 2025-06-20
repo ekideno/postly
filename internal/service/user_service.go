@@ -7,20 +7,26 @@ import (
 )
 
 type UserService struct {
-	repo domain.UserRepository
+	repo       domain.UserRepository
+	jwtManager *security.JWTManager
 }
 
-func NewUserService(repo domain.UserRepository) *UserService {
-	return &UserService{repo: repo}
+func NewUserService(repo domain.UserRepository, jwtManager *security.JWTManager) *UserService {
+	return &UserService{repo: repo, jwtManager: jwtManager}
 }
 
-func (s *UserService) Create(user *domain.User) error {
+func (s *UserService) Register(user *domain.User) (string, error) {
 	var err error
 	user.HashedPassword, err = security.HashPassword(user.Password)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return s.repo.Create(user)
+
+	err = s.repo.Create(user)
+	if err != nil {
+		return "", err
+	}
+	return s.jwtManager.GenerateToken(user.ID)
 }
 
 func (s *UserService) GetByID(id string) (*domain.User, error) {
@@ -31,15 +37,15 @@ func (s *UserService) DeleteByID(id string) error {
 	return s.repo.DeleteByID(id)
 }
 
-func (s *UserService) Login(email string, password string) error {
+func (s *UserService) Login(email string, password string) (string, error) {
 	user, err := s.repo.GetByEmail(email)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if !security.CheckPasswordHash(password, user.HashedPassword) {
-		return errors.New("wrong password")
+		return "", errors.New("wrong password")
 	}
 
-	return nil
+	return s.jwtManager.GenerateToken(user.ID)
 }

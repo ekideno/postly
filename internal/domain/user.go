@@ -18,11 +18,6 @@ type UserRepository interface {
 	DeleteByID(id string) error
 }
 
-type UserService interface {
-	Create(user *User) error
-	Login(email string, password string) error
-}
-
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`

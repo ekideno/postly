@@ -22,12 +22,12 @@ func (h UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	err := h.UserService.Create(&user)
+	token, err := h.UserService.Register(&user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"id": user.ID})
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func (h UserHandler) Login(c *gin.Context) {
@@ -37,11 +37,11 @@ func (h UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	err := h.UserService.Login(req.Email, req.Password)
+	token, err := h.UserService.Login(req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "success"})
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
