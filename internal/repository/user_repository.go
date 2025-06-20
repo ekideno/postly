@@ -4,10 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/domain"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -17,30 +16,15 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
-func loadEnv() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Println("Warning: .env file not found, relying on system environment variables")
-	}
-}
-
-func getDSN() string {
+func getDSN(cfg *config.Config) string {
 	return fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_SSLMODE"),
-		os.Getenv("DB_TIMEZONE"),
+		"host=%v user=%v password=%v dbname=%v port=%v sslmode=%v TimeZone=%v",
+		cfg.DB_HOST, cfg.DB_USER, cfg.DB_PASSWORD, cfg.DB_NAME, cfg.DB_PORT, cfg.DB_SSLMODE, cfg.DB_TIMEZONE,
 	)
 }
 
-func NewUserRepository() (*UserRepository, error) {
-	loadEnv()
-
-	dsn := getDSN()
+func NewUserRepository(cfg *config.Config) (*UserRepository, error) {
+	dsn := getDSN(cfg)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
@@ -73,13 +57,13 @@ func (r UserRepository) GetByID(id string) (*domain.User, error) {
 }
 
 func (r *UserRepository) DeleteByID(id string) error {
-	log.Printf("Deleting user with id: %s\n", id)
+	log.Printf("Deleting user with id: %v\n", id)
 	result := r.db.Delete(&domain.User{}, "id = ?", id)
 	if result.Error != nil {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("no user found with id %s", id)
+		return fmt.Errorf("no user found with id %v", id)
 	}
 	return nil
 }
@@ -90,7 +74,7 @@ func (r *UserRepository) GetByEmail(email string) (*domain.User, error) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("no user found with email %s", email)
+			return nil, fmt.Errorf("no user found with email %v", email)
 		}
 		return nil, result.Error
 	}

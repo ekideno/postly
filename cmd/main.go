@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/handler"
 	"github.com/ekideno/postly/internal/repository"
 	"github.com/ekideno/postly/internal/security"
@@ -11,9 +12,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupRouter() *gin.Engine {
+func main() {
+	cfg := config.New()
+
+	r := setupRouter(cfg)
+
+	utils.InitSnowflake(1)
+	r.Run(":8080")
+}
+
+func setupRouter(cfg *config.Config) *gin.Engine {
 	// Initialize components
-	userRepository, err := repository.NewUserRepository()
+	userRepository, err := repository.NewUserRepository(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -44,10 +54,4 @@ func setupRouter() *gin.Engine {
 	})
 
 	return r
-}
-
-func main() {
-	r := setupRouter()
-	utils.InitSnowflake(1)
-	r.Run(":8080")
 }
