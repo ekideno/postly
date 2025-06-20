@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/ekideno/postly/internal/domain"
+	"github.com/ekideno/postly/internal/security"
 )
 
 type UserService struct {
@@ -14,6 +15,11 @@ func NewUserService(repo domain.UserRepository) *UserService {
 }
 
 func (s *UserService) Create(user *domain.User) error {
+	var err error
+	user.HashedPassword, err = security.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
 	return s.repo.Create(user)
 }
 
@@ -31,7 +37,7 @@ func (s *UserService) Login(email string, password string) error {
 		return err
 	}
 
-	if user.Password != password {
+	if !security.CheckPasswordHash(password, user.HashedPassword) {
 		return errors.New("wrong password")
 	}
 

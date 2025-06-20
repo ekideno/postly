@@ -3,11 +3,12 @@ package domain
 import "gorm.io/gorm"
 
 type User struct {
+	ID             string `gorm:"primaryKey"`
+	Username       string `gorm:"uniqueIndex;not null" json:"username"`
+	Email          string `gorm:"uniqueIndex;not null" json:"email"`
+	Password       string `gorm:"-" json:"password"`
+	HashedPassword string `gorm:"not null" json:"-"`
 	gorm.Model
-	ID       string `gorm:"primaryKey"`
-	Username string `gorm:"uniqueIndex;not null" json:"username"`
-	Email    string `gorm:"uniqueIndex;not null" json:"email"`
-	Password string `gorm:"not null" json:"password"`
 }
 
 type UserRepository interface {
