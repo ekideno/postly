@@ -49,3 +49,7 @@ func (s *UserService) Login(email string, password string) (string, error) {
 
 	return s.jwtManager.GenerateToken(user.ID)
 }
+
+func (s *UserService) GetProfile() {
+
+}

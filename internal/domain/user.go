@@ -6,9 +6,13 @@ type User struct {
 	ID             string `gorm:"primaryKey"`
 	Username       string `gorm:"uniqueIndex;not null" json:"username"`
 	Email          string `gorm:"uniqueIndex;not null" json:"email"`
-	Password       string `gorm:"-" json:"password"`
+	Password       string `gorm:"-" json:"-"`
 	HashedPassword string `gorm:"not null" json:"-"`
-	gorm.Model
+	gorm.Model     `json:"-"`
+}
+type PublicUserDTO struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type UserRepository interface {
@@ -21,4 +25,10 @@ type UserRepository interface {
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
+}
+
+type RegisterRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required"`
 }

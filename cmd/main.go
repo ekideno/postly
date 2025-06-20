@@ -33,6 +33,13 @@ func setupRouter() *gin.Engine {
 	protected := api.Group("/")
 	protected.Use(jwtManager.AuthMiddleware())
 
+	protected.GET("/protected", func(c *gin.Context) {
+		c.JSON(200, gin.H{"hello": "111!"})
+	})
+
+	api.GET("/user/profile", jwtManager.AuthMiddleware(), userHandler.OwnProfile)
+	api.GET("/user/:id/profile", userHandler.UserProfile)
+
 	return r
 }
 
