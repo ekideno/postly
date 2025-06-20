@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -81,4 +82,18 @@ func (r *UserRepository) DeleteByID(id string) error {
 		return fmt.Errorf("no user found with id %s", id)
 	}
 	return nil
+}
+
+func (r *UserRepository) GetByEmail(email string) (*domain.User, error) {
+	var user domain.User
+	result := r.db.Where("email = ?", email).First(&user)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("no user found with email %s", email)
+		}
+		return nil, result.Error
+	}
+
+	return &user, nil
 }

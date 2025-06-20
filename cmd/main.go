@@ -19,8 +19,13 @@ func setupRouter() *gin.Engine {
 	}
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
-	
-	r.POST("/api/register", userHandler.Register)
+
+	api := r.Group("/api")
+	auth := api.Group("/auth")
+
+	auth.POST("/register", userHandler.Register)
+	auth.POST("/login", userHandler.Login)
+
 	return r
 }
 

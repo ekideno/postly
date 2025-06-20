@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/ekideno/postly/internal/domain"
 )
 
@@ -22,4 +23,17 @@ func (s *UserService) GetByID(id string) (*domain.User, error) {
 
 func (s *UserService) DeleteByID(id string) error {
 	return s.repo.DeleteByID(id)
+}
+
+func (s *UserService) Login(email string, password string) error {
+	user, err := s.repo.GetByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	if user.Password != password {
+		return errors.New("wrong password")
+	}
+
+	return nil
 }
