@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/security"
+	"github.com/ekideno/postly/internal/utils"
 )
 
 type UserService struct {
@@ -16,6 +17,8 @@ func NewUserService(repo domain.UserRepository, jwtManager *security.JWTManager)
 }
 
 func (s *UserService) Register(user *domain.User) (string, error) {
+	user.ID = utils.GenerateID()
+	
 	var err error
 	user.HashedPassword, err = security.HashPassword(user.Password)
 	if err != nil {

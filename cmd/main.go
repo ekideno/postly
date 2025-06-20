@@ -5,6 +5,7 @@ import (
 	"github.com/ekideno/postly/internal/repository"
 	"github.com/ekideno/postly/internal/security"
 	"github.com/ekideno/postly/internal/service"
+	"github.com/ekideno/postly/internal/utils"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -45,5 +46,6 @@ func setupRouter() *gin.Engine {
 
 func main() {
 	r := setupRouter()
+	utils.InitSnowflake(1)
 	r.Run(":8080")
 }

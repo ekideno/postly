@@ -23,7 +23,6 @@ func (h *UserHandler) Register(c *gin.Context) {
 	}
 
 	user := &domain.User{
-		ID:       "123", // TODO
 		Email:    req.Email,
 		Username: req.Username,
 		Password: req.Password,
