@@ -1,18 +1,18 @@
 package domain
 
-import "gorm.io/gorm"
-
 type User struct {
 	ID             string `gorm:"primaryKey"`
-	Username       string `gorm:"uniqueIndex;not null" json:"username"`
-	Email          string `gorm:"uniqueIndex;not null" json:"email"`
-	Password       string `gorm:"-" json:"-"`
-	HashedPassword string `gorm:"not null" json:"-"`
-	gorm.Model     `json:"-"`
+	Username       string `gorm:"uniqueIndex;not null"`
+	Email          string `gorm:"uniqueIndex;not null"`
+	Password       string `gorm:"-"`
+	HashedPassword string `gorm:"not null"`
+
+	Posts []Post `gorm:"foreignKey:UserID"`
 }
+
 type PublicUserDTO struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID       string `json:"id"`
+	Username string `json:"name"`
 }
 
 type UserRepository interface {

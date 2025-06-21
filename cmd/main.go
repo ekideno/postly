@@ -41,6 +41,15 @@ func setupRouter() *gin.Engine {
 	api.GET("/user/profile", jwtManager.AuthMiddleware(), userHandler.OwnProfile)
 	api.GET("/user/:id/profile", userHandler.UserProfile)
 
+	postRepository, err := repository.NewPostRepository()
+	if err != nil {
+		panic(err)
+	}
+	postService := service.NewPostService(postRepository)
+	postHandler := handler.NewPostHandler(postService)
+
+	protected.POST("/post", postHandler.Create)
+	api.GET("/user/:id/posts", postHandler.GetPostsByUser)
 	return r
 }
 
