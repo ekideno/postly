@@ -3,6 +3,7 @@ package repository
 import (
 	"testing"
 
+	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,17 @@ func setupTestDB(t *testing.T) *UserRepository {
 		t.Fatalf("Error loading .env file: %v", err)
 	}
 
-	repo, err := NewUserRepository()
+	repo, err := NewUserRepository(&config.Config{
+		Database: config.Database{
+			Host:     "localhost",
+			User:     "postgres",
+			Password: 1234,
+			Name:     "postly",
+			Port:     5432,
+			Sslmode:  "disable",
+			Timezone: "UTC",
+		},
+	})
 	require.NoError(t, err)
 
 	err = repo.db.Exec("TRUNCATE TABLE users CASCADE").Error

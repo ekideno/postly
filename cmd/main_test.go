@@ -5,11 +5,22 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ekideno/postly/internal/config"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRootEndpoint(t *testing.T) {
-	r := setupRouter()
+	r := setupRouter(&config.Config{
+		Database: config.Database{
+			Host:     "localhost",
+			User:     "postgres",
+			Password: 1234,
+			Name:     "postly",
+			Port:     5432,
+			Sslmode:  "disable",
+			Timezone: "UTC",
+		},
+	})
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
