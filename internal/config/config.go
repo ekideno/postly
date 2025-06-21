@@ -7,15 +7,18 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-// TODO: Move all database values to nested struct as the main struct expands
 type Config struct {
-	DB_HOST     string `yaml:"host" env-default:"localhost"`
-	DB_USER     string `yaml:"user" env-required:"true"`
-	DB_PASSWORD int    `yaml:"password" env-required:"true"`
-	DB_NAME     string `yaml:"name" env-required:"true"`
-	DB_PORT     int    `yaml:"port" env-default:"5432"`
-	DB_SSLMODE  string `yaml:"sslmode" env-required:"disable"`
-	DB_TIMEZONE string `yaml:"timezone" env-default:"UTC"`
+	Database Database `yaml:"database"`
+}
+
+type Database struct {
+	Host     string `yaml:"host" env-default:"localhost"`
+	User     string `yaml:"user" env-required:"true"`
+	Password int    `yaml:"password" env-required:"true"`
+	Name     string `yaml:"name" env-required:"true"`
+	Port     int    `yaml:"port" env-default:"5432"`
+	Sslmode  string `yaml:"sslmode" env-required:"disable"`
+	Timezone string `yaml:"timezone" env-default:"UTC"`
 }
 
 func New() *Config {

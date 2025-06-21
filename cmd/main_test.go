@@ -11,13 +11,15 @@ import (
 
 func TestRootEndpoint(t *testing.T) {
 	r := setupRouter(&config.Config{
-		DB_HOST:     "localhost",
-		DB_USER:     "postgres",
-		DB_PASSWORD: 1234,
-		DB_NAME:     "postly",
-		DB_PORT:     5432,
-		DB_SSLMODE:  "disable",
-		DB_TIMEZONE: "UTC",
+		Database: config.Database{
+			Host:     "localhost",
+			User:     "postgres",
+			Password: 1234,
+			Name:     "postly",
+			Port:     5432,
+			Sslmode:  "disable",
+			Timezone: "UTC",
+		},
 	})
 
 	req, _ := http.NewRequest("GET", "/", nil)

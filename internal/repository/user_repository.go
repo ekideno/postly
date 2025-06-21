@@ -16,15 +16,15 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
-func getDSN(cfg *config.Config) string {
+func getDSN(db *config.Database) string {
 	return fmt.Sprintf(
 		"host=%v user=%v password=%v dbname=%v port=%v sslmode=%v TimeZone=%v",
-		cfg.DB_HOST, cfg.DB_USER, cfg.DB_PASSWORD, cfg.DB_NAME, cfg.DB_PORT, cfg.DB_SSLMODE, cfg.DB_TIMEZONE,
+		db.Host, db.User, db.Password, db.Name, db.Port, db.Sslmode, db.Timezone,
 	)
 }
 
 func NewUserRepository(cfg *config.Config) (*UserRepository, error) {
-	dsn := getDSN(cfg)
+	dsn := getDSN(&cfg.Database)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
