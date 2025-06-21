@@ -1,8 +1,8 @@
 database:
   host: localhost
-  user: postgres
+  user: admin
   password: 1234
-  name: postly
+  name: postly_db
   port: 5432
   sslmode: disable
   timezone: UTC
