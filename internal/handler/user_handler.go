@@ -58,13 +58,13 @@ func (h *UserHandler) UserProfile(c *gin.Context) {
 
 	user, err := h.UserService.GetByID(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Username not found"})
 		return
 	}
 
 	public := domain.PublicUserDTO{
-		ID:   user.ID,
-		Name: user.Username,
+		ID:       user.ID,
+		Username: user.Username,
 	}
 
 	c.JSON(http.StatusOK, public)
