@@ -53,7 +53,7 @@ func (h UserHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-func (h *UserHandler) UserProfile(c *gin.Context) {
+func (h *UserHandler) UserProfileByID(c *gin.Context) {
 	id := c.Param("id")
 
 	user, err := h.UserService.GetByID(id)
@@ -84,4 +84,31 @@ func (h *UserHandler) OwnProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+}
+func (h *UserHandler) UserProfileByUsername(c *gin.Context) {
+	username := c.Param("username")
+
+	user, err := h.UserService.GetByUsername(username)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return // важно не забыть return, чтобы не пойти дальше
+	}
+
+	currentUserID, exists := c.Get("user_id")
+
+	if exists && currentUserID == user.ID {
+		private := domain.PrivateUserDTO{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		}
+		c.JSON(http.StatusOK, private)
+		return
+	}
+
+	public := domain.PublicUserDTO{
+		ID:       user.ID,
+		Username: user.Username,
+	}
+	c.JSON(http.StatusOK, public)
 }

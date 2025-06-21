@@ -22,10 +22,23 @@ func (r *PostRepository) LoadAuthor(post *domain.Post) error {
 	return r.db.Preload("User").First(post, "id = ?", post.ID).Error
 }
 
-func (r *PostRepository) GetByUserID(userID string, limit, offset int) ([]domain.Post, error) {
+func (r *PostRepository) GetPostsByUser(username string, limit, offset int) ([]domain.Post, error) {
 	var posts []domain.Post
 	err := r.db.
-		Where("user_id = ?", userID).
+		Joins("JOIN users ON users.id = posts.user_id").
+		Where("users.username = ?", username).
+		Preload("User").
+		Order("posts.created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&posts).Error
+
+	return posts, err
+}
+
+func (r *PostRepository) GetFeed(limit, offset int) ([]domain.Post, error) {
+	var posts []domain.Post
+	err := r.db.
 		Preload("User").
 		Order("created_at DESC").
 		Limit(limit).

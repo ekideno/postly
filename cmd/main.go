@@ -62,8 +62,10 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	protected := api.Group("/")
 
 	api.GET("/user/profile", jwtManager.AuthMiddleware(), userHandler.OwnProfile)
-	api.GET("/user/:id/profile", userHandler.UserProfile)
-	api.GET("/user/:id/posts", postHandler.GetPostsByUser)
+	//api.GET("/user/:id/profile", userHandler.UserProfileByID)
+	api.GET("/user/:username/posts", postHandler.GetPostsByUser)
+	api.GET("/user/:username/profile", jwtManager.OptionalAuthMiddleware(), userHandler.UserProfileByUsername)
+	api.GET("/feed", postHandler.GetFeed)
 
 	auth.POST("/register", userHandler.Register)
 	auth.POST("/login", userHandler.Login)

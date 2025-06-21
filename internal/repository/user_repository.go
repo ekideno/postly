@@ -58,3 +58,14 @@ func (r *UserRepository) GetByEmail(email string) (*domain.User, error) {
 
 	return &user, nil
 }
+
+func (r *UserRepository) GetByUsername(username string) (*domain.User, error) {
+	var user domain.User
+	result := r.db.Where("username = ?", username).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("no user found with username %v", username)
+		}
+	}
+	return &user, nil
+}

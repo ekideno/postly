@@ -18,7 +18,7 @@ func NewUserService(repo domain.UserRepository, jwtManager *security.JWTManager)
 
 func (s *UserService) Register(user *domain.User) (string, error) {
 	user.ID = utils.GenerateID()
-	
+
 	var err error
 	user.HashedPassword, err = security.HashPassword(user.Password)
 	if err != nil {
@@ -29,7 +29,7 @@ func (s *UserService) Register(user *domain.User) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return s.jwtManager.GenerateToken(user.ID)
+	return s.jwtManager.GenerateToken(user.ID, user.Username)
 }
 
 func (s *UserService) GetByID(id string) (*domain.User, error) {
@@ -50,9 +50,9 @@ func (s *UserService) Login(email string, password string) (string, error) {
 		return "", errors.New("wrong password")
 	}
 
-	return s.jwtManager.GenerateToken(user.ID)
+	return s.jwtManager.GenerateToken(user.ID, user.Username)
 }
 
-func (s *UserService) GetProfile() {
-
+func (s *UserService) GetByUsername(username string) (*domain.User, error) {
+	return s.repo.GetByUsername(username)
 }

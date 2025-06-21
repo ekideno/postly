@@ -35,6 +35,10 @@ func (s *PostService) Create(userID string, postReq *domain.CreatePostRequest) (
 	return post, nil
 }
 
-func (s *PostService) GetPostsByUser(userID string, limit, offset int) ([]domain.Post, error) {
-	return s.postRepository.GetByUserID(userID, limit, offset)
+func (s *PostService) GetPostsByUser(username string, limit, offset int) ([]domain.Post, error) {
+	return s.postRepository.GetPostsByUser(username, limit, offset)
+}
+
+func (s *PostService) GetFeed(limit, offset int) ([]domain.Post, error) {
+	return s.postRepository.GetFeed(limit, offset)
 }

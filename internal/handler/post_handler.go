@@ -42,7 +42,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 }
 
 func (h *PostHandler) GetPostsByUser(c *gin.Context) {
-	userID := c.Param("id")
+	username := c.Param("username")
 
 	limitStr := c.DefaultQuery("limit", "10")
 	offsetStr := c.DefaultQuery("offset", "0")
@@ -50,9 +50,9 @@ func (h *PostHandler) GetPostsByUser(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
 
-	posts, err := h.postService.GetPostsByUser(userID, limit, offset)
+	posts, err := h.postService.GetPostsByUser(username, limit, offset)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	responses := ToPostResponseList(posts)
@@ -83,4 +83,22 @@ func ToPostResponse(post *domain.Post) domain.PostResponse {
 			Username: post.User.Username,
 		},
 	}
+}
+
+func (h *PostHandler) GetFeed(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "20")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	limit, _ := strconv.Atoi(limitStr)
+	offset, _ := strconv.Atoi(offsetStr)
+
+	posts, err := h.postService.GetFeed(limit, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load feed"})
+		return
+	}
+
+	postResponses := ToPostResponseList(posts)
+
+	c.JSON(http.StatusOK, postResponses)
 }

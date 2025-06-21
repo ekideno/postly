@@ -22,13 +22,15 @@ func NewJWTManager(secret string, expiresIn time.Duration) *JWTManager {
 }
 
 type Claims struct {
-	UserID string `json:"user_id"`
+	UserID   string `json:"user_id"`
+	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-func (j *JWTManager) GenerateToken(userID string) (string, error) {
+func (j *JWTManager) GenerateToken(userID, username string) (string, error) {
 	claims := Claims{
-		UserID: userID,
+		UserID:   userID,
+		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(j.expiresIn)),
 		},
@@ -43,6 +45,7 @@ func (j *JWTManager) GenerateToken(userID string) (string, error) {
 
 	return signedToken, nil
 }
+
 func (j *JWTManager) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -74,6 +77,43 @@ func (j *JWTManager) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		c.Set("user_id", claims.UserID)
+		c.Next()
+	}
+}
+
+func (j *JWTManager) OptionalAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			// Нет токена — просто идём дальше, без ошибки
+			c.Next()
+			return
+		}
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return j.secretKey, nil
+		})
+
+		if err != nil || !token.Valid {
+			// Токен есть, но не валидный — тоже пропускаем без ошибки,
+			// чтобы гость мог смотреть публичные страницы
+			c.Next()
+			return
+		}
+
+		claims, ok := token.Claims.(*Claims)
+		if !ok {
+			c.Next()
+			return
+		}
+
+		// Сохраняем user_id в контекст для последующего использования
 		c.Set("user_id", claims.UserID)
 		c.Next()
 	}
