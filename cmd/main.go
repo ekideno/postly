@@ -53,5 +53,14 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 		c.JSON(200, gin.H{"hello": "111!"})
 	})
 
+	postRepository, err := repository.NewPostRepository()
+	if err != nil {
+		panic(err)
+	}
+	postService := service.NewPostService(postRepository)
+	postHandler := handler.NewPostHandler(postService)
+
+	protected.POST("/post", postHandler.Create)
+	api.GET("/user/:id/posts", postHandler.GetPostsByUser)
 	return r
 }
