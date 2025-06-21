@@ -31,7 +31,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	userService := service.NewUserService(userRepository, jwtManager)
 	userHandler := handler.NewUserHandler(userService)
 
-	postRepository, err := repository.NewPostRepository()
+	postRepository, err := repository.NewPostRepository(cfg)
 	if err != nil {
 		panic(err)
 	}

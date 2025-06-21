@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/domain"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -11,10 +13,8 @@ type PostRepository struct {
 	db *gorm.DB
 }
 
-func NewPostRepository() (*PostRepository, error) {
-	loadEnv()
-
-	dsn := getDSN()
+func NewPostRepository(cfg *config.Config) (*PostRepository, error) {
+	dsn := getDSN(&cfg.Database)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
