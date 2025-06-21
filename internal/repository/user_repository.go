@@ -5,38 +5,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/domain"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type UserRepository struct {
 	db *gorm.DB
 }
 
-func getDSN(db *config.Database) string {
-	return fmt.Sprintf(
-		"host=%v user=%v password=%v dbname=%v port=%v sslmode=%v TimeZone=%v",
-		db.Host, db.User, db.Password, db.Name, db.Port, db.Sslmode, db.Timezone,
-	)
-}
-
-func NewUserRepository(cfg *config.Config) (*UserRepository, error) {
-	dsn := getDSN(&cfg.Database)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.AutoMigrate(&domain.User{})
-	if err != nil {
-		return nil, err
-	}
-
+func NewUserRepository(db *gorm.DB) (*UserRepository, error) {
 	return &UserRepository{
 		db: db,
 	}, nil

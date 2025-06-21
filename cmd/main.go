@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ekideno/postly/internal/database"
 	"time"
 
 	"github.com/ekideno/postly/internal/config"
@@ -23,18 +24,29 @@ func main() {
 
 func setupRouter(cfg *config.Config) *gin.Engine {
 	// Initialize components
-	userRepository, err := repository.NewUserRepository(cfg)
+	db, err := database.PostgreConnect(cfg)
 	if err != nil {
 		panic(err)
 	}
+
+	if err = database.Migrate(db.Conn); err != nil {
+		panic(err)
+	}
+
+	userRepository, err := repository.NewUserRepository(db.Conn)
+	if err != nil {
+		panic(err)
+	}
+
 	jwtManager := security.NewJWTManager("sda*3oj9(FD4)324%34fk#1", time.Hour*24)
 	userService := service.NewUserService(userRepository, jwtManager)
 	userHandler := handler.NewUserHandler(userService)
 
-	postRepository, err := repository.NewPostRepository(cfg)
+	postRepository, err := repository.NewPostRepository(db.Conn)
 	if err != nil {
 		panic(err)
 	}
+
 	postService := service.NewPostService(postRepository)
 	postHandler := handler.NewPostHandler(postService)
 

@@ -1,35 +1,17 @@
 package repository
 
 import (
-	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/domain"
 
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type PostRepository struct {
 	db *gorm.DB
 }
 
-func NewPostRepository(cfg *config.Config) (*PostRepository, error) {
-	dsn := getDSN(&cfg.Database)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.AutoMigrate(&domain.Post{})
-	if err != nil {
-		return nil, err
-	}
-
-	return &PostRepository{
-		db: db,
-	}, nil
+func NewPostRepository(db *gorm.DB) (*PostRepository, error) {
+	return &PostRepository{db: db}, nil
 }
 
 func (r *PostRepository) Create(post *domain.Post) error {
