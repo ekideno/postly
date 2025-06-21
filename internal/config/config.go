@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -25,18 +25,18 @@ func New() *Config {
 	// Get path of config file
 	path := os.Getenv("CONFIG_PATH")
 	if path == "" {
-		panic("CONFIG_PATH env value not found")
+		log.Fatalf("CONFIG_PATH env value not found")
 	}
 
 	// Check if config file exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		panic(fmt.Sprintf("Failed to find config file: %s", path))
+		log.Fatalf("Failed to find config file: %s", path)
 	}
 
 	// Read config file
 	var cfg Config
 	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
-		panic(fmt.Sprintf("Failed to read config file: %s", err.Error()))
+		log.Fatalf("Failed to read config file: %s", err.Error())
 	}
 
 	return &cfg
