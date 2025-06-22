@@ -23,11 +23,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user := &domain.User{
-		Email:    req.Email,
-		Username: req.Username,
-		Password: req.Password,
-	}
+	user := domain.FromRegisterRequest(&req)
 
 	token, err := h.UserService.Register(user)
 	if err != nil {
@@ -63,10 +59,7 @@ func (h *UserHandler) UserProfileByID(c *gin.Context) {
 		return
 	}
 
-	public := domain.PublicUserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-	}
+	public := domain.ToPublicUserDTO(user)
 
 	c.JSON(http.StatusOK, public)
 }
@@ -85,11 +78,7 @@ func (h *UserHandler) GetMe(c *gin.Context) {
 		return
 	}
 
-	private := domain.PrivateUserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-	}
+	private := domain.ToPrivateUserDTO(user)
 
 	c.JSON(http.StatusOK, private)
 }
@@ -102,10 +91,8 @@ func (h *UserHandler) UserProfileByUsername(c *gin.Context) {
 		return
 	}
 
-	public := domain.PublicUserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-	}
+	public := domain.ToPublicUserDTO(user)
+
 	c.JSON(http.StatusOK, public)
 }
 
@@ -134,10 +121,6 @@ func (h *UserHandler) UpdateMe(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, domain.PrivateUserDTO{
-		ID:       updatedUser.ID,
-		Username: updatedUser.Username,
-		Email:    updatedUser.Email,
-		Bio:      updatedUser.Bio,
-	})
+	response := domain.ToPrivateUserDTO(updatedUser)
+	c.JSON(http.StatusOK, response)
 }
