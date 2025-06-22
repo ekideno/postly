@@ -52,29 +52,34 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 
 	// Initialize router
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{"hello": "Postly!"})
-	})
 
-	// Routes
 	api := r.Group("/api")
+
 	auth := api.Group("/auth")
+	{
+		auth.POST("/register", userHandler.Register)
+		auth.POST("/login", userHandler.Login)
+	}
+
+	users := api.Group("/users")
+	{
+		users.GET("/:username/posts", postHandler.GetPostsByUser)
+		users.GET("/:username", userHandler.UserProfileByUsername)
+	}
+
+	protectedUsers := api.Group("/users")
+	protectedUsers.Use(jwtManager.AuthMiddleware())
+	{
+		protectedUsers.GET("/@me", userHandler.GetMe)
+	}
+
+	api.GET("/posts/feed", postHandler.GetFeed)
+
 	protected := api.Group("/")
-
-	api.GET("/user/profile", jwtManager.AuthMiddleware(), userHandler.OwnProfile)
-	//api.GET("/user/:id/profile", userHandler.UserProfileByID)
-	api.GET("/user/:username/posts", postHandler.GetPostsByUser)
-	api.GET("/user/:username/profile", jwtManager.OptionalAuthMiddleware(), userHandler.UserProfileByUsername)
-	api.GET("/feed", postHandler.GetFeed)
-
-	auth.POST("/register", userHandler.Register)
-	auth.POST("/login", userHandler.Login)
-
 	protected.Use(jwtManager.AuthMiddleware())
-	protected.GET("/protected", func(c *gin.Context) {
-		c.JSON(200, gin.H{"hello": "111!"})
-	})
-	protected.POST("/post", postHandler.Create)
+	{
+		protected.POST("/posts", postHandler.Create)
+	}
 
 	return r
 }

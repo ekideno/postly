@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/service"
 	"github.com/gin-gonic/gin"
@@ -70,8 +71,9 @@ func (h *UserHandler) UserProfileByID(c *gin.Context) {
 	c.JSON(http.StatusOK, public)
 }
 
-func (h *UserHandler) OwnProfile(c *gin.Context) {
+func (h *UserHandler) GetMe(c *gin.Context) {
 	userID, ok := c.Get("user_id")
+	fmt.Println(userID)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
@@ -83,7 +85,13 @@ func (h *UserHandler) OwnProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	private := domain.PrivateUserDTO{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}
+
+	c.JSON(http.StatusOK, private)
 }
 func (h *UserHandler) UserProfileByUsername(c *gin.Context) {
 	username := c.Param("username")
@@ -91,18 +99,6 @@ func (h *UserHandler) UserProfileByUsername(c *gin.Context) {
 	user, err := h.UserService.GetByUsername(username)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return // важно не забыть return, чтобы не пойти дальше
-	}
-
-	currentUserID, exists := c.Get("user_id")
-
-	if exists && currentUserID == user.ID {
-		private := domain.PrivateUserDTO{
-			ID:       user.ID,
-			Username: user.Username,
-			Email:    user.Email,
-		}
-		c.JSON(http.StatusOK, private)
 		return
 	}
 
