@@ -108,3 +108,36 @@ func (h *UserHandler) UserProfileByUsername(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, public)
 }
+
+func (h *UserHandler) UpdateMe(c *gin.Context) {
+	userIDRaw, ok := c.Get("user_id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userID, ok := userIDRaw.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	var dto domain.UpdateUserDTO
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		return
+	}
+
+	updatedUser, err := h.UserService.UpdateUserProfile(userID, dto)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.PrivateUserDTO{
+		ID:       updatedUser.ID,
+		Username: updatedUser.Username,
+		Email:    updatedUser.Email,
+		Bio:      updatedUser.Bio,
+	})
+}

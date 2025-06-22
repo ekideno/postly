@@ -71,6 +71,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	protectedUsers.Use(jwtManager.AuthMiddleware())
 	{
 		protectedUsers.GET("/@me", userHandler.GetMe)
+		protectedUsers.PATCH("/@me", userHandler.UpdateMe)
 	}
 
 	api.GET("/posts/feed", postHandler.GetFeed)

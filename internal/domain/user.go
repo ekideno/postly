@@ -6,26 +6,36 @@ type User struct {
 	Email          string `gorm:"uniqueIndex;not null"`
 	Password       string `gorm:"-"`
 	HashedPassword string `gorm:"not null"`
-
-	Posts []Post `gorm:"foreignKey:UserID"`
+	Posts          []Post `gorm:"foreignKey:UserID"`
+	Bio            string `json:"bio"`
 }
 
 type PublicUserDTO struct {
 	ID       string `json:"id"`
 	Username string `json:"name"`
+	Bio      string `json:"bio"`
 }
 
 type PrivateUserDTO struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
+	Bio      string `json:"bio"`
 }
+
+type UpdateUserDTO struct {
+	Email    *string `json:"email,omitempty"`
+	Username *string `json:"username,omitempty"`
+	Bio      *string `json:"bio,omitempty"`
+}
+
 type UserRepository interface {
 	Create(user *User) error
 	GetByID(id string) (*User, error)
 	GetByEmail(email string) (*User, error)
 	DeleteByID(id string) error
 	GetByUsername(username string) (*User, error)
+	Update(user *User) error
 }
 
 type LoginRequest struct {

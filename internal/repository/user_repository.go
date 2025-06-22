@@ -69,3 +69,7 @@ func (r *UserRepository) GetByUsername(username string) (*domain.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) Update(user *domain.User) error {
+	return r.db.Save(user).Error
+}
