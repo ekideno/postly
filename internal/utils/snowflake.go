@@ -16,6 +16,6 @@ func InitSnowflake(machineID int64) {
 	}
 }
 
-func GenerateID() string {
+func GenerateSnowflakeID() string {
 	return node.Generate().String()
 }

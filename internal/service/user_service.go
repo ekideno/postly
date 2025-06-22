@@ -17,7 +17,7 @@ func NewUserService(repo domain.UserRepository, jwtManager *security.JWTManager)
 }
 
 func (s *UserService) Register(user *domain.User) (string, error) {
-	user.ID = utils.GenerateID()
+	user.ID = utils.GenerateSnowflakeID()
 
 	var err error
 	user.HashedPassword, err = security.HashPassword(user.Password)
@@ -78,4 +78,14 @@ func (s *UserService) UpdateUserProfile(userID string, dto domain.UpdateUserDTO)
 	}
 
 	return user, nil
+}
+
+func (s *UserService) UpdateAvatar(userID string, path string) error {
+	user, err := s.repo.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.AvatarURL = path
+	return s.repo.Update(user)
 }

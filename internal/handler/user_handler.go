@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/service"
+	"github.com/ekideno/postly/internal/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 type UserHandler struct {
@@ -123,4 +126,43 @@ func (h *UserHandler) UpdateMe(c *gin.Context) {
 
 	response := domain.ToPrivateUserDTO(updatedUser)
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *UserHandler) UploadAvatar(c *gin.Context) {
+	userIDRaw, ok := c.Get("user_id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	userID, _ := userIDRaw.(string)
+
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no file uploaded"})
+		return
+	}
+
+	uploadPath := "./uploads/avatars"
+	if err := os.MkdirAll(uploadPath, os.ModePerm); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create upload dir"})
+		return
+	}
+
+	ext := filepath.Ext(file.Filename)
+	filename := fmt.Sprintf("%s%s", utils.GenerateUUID(), ext)
+	fullPath := filepath.Join(uploadPath, filename)
+
+	if err := c.SaveUploadedFile(file, fullPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save file"})
+		return
+	}
+
+	avatarPath := "/uploads/avatars/" + filename
+	err = h.UserService.UpdateAvatar(userID, avatarPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update avatar in DB"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"avatar_url": avatarPath})
 }

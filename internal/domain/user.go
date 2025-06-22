@@ -8,25 +8,29 @@ type User struct {
 	HashedPassword string `gorm:"not null"`
 	Posts          []Post `gorm:"foreignKey:UserID"`
 	Bio            string `json:"bio"`
+	AvatarURL      string `json:"avatar_url"`
 }
 
 type PublicUserDTO struct {
-	ID       string `json:"id"`
-	Username string `json:"name"`
-	Bio      string `json:"bio"`
+	ID        string `json:"id"`
+	Username  string `json:"name"`
+	Bio       string `json:"bio"`
+	AvatarURL string `json:"avatar_url"`
 }
 
 type PrivateUserDTO struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Bio      string `json:"bio"`
+	ID        string `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Bio       string `json:"bio"`
+	AvatarURL string `json:"avatar_url"`
 }
 
 type UpdateUserDTO struct {
-	Email    *string `json:"email,omitempty"`
-	Username *string `json:"username,omitempty"`
-	Bio      *string `json:"bio,omitempty"`
+	Email     *string `json:"email,omitempty"`
+	Username  *string `json:"username,omitempty"`
+	Bio       *string `json:"bio,omitempty"`
+	AvatarURL string  `json:"avatar_url"`
 }
 
 type UserRepository interface {

@@ -16,7 +16,7 @@ func NewPostService(repo domain.PostRepository) *PostService {
 
 func (s *PostService) Create(userID string, postReq *domain.CreatePostRequest) (*domain.Post, error) {
 	post := &domain.Post{
-		ID:        utils.GenerateID(),
+		ID:        utils.GenerateSnowflakeID(),
 		UserID:    userID,
 		Title:     postReq.Title,
 		Content:   postReq.Content,
