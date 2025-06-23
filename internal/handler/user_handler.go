@@ -166,3 +166,37 @@ func (h *UserHandler) UploadAvatar(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"avatar_url": avatarPath})
 }
+
+func (h *UserHandler) UploadBanner(c *gin.Context) {
+	userIDRaw, ok := c.Get("user_id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+	}
+
+	userID, _ := userIDRaw.(string)
+	file, err := c.FormFile("banner")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no file uploaded"})
+		return
+	}
+	uploadPath := "./uploads/banners"
+	if err := os.MkdirAll(uploadPath, os.ModePerm); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create upload dir"})
+		return
+	}
+	ext := filepath.Ext(file.Filename)
+	filename := fmt.Sprintf("%s%s", utils.GenerateUUID(), ext)
+	fullPath := filepath.Join(uploadPath, filename)
+
+	if err := c.SaveUploadedFile(file, fullPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save file"})
+		return
+	}
+	bannerPath := "/uploads/banners/" + filename
+	err = h.UserService.UpdateBanner(userID, bannerPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update avatar in DB"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"banner_url": bannerPath})
+}

@@ -89,3 +89,13 @@ func (s *UserService) UpdateAvatar(userID string, path string) error {
 	user.AvatarURL = path
 	return s.repo.Update(user)
 }
+
+func (s *UserService) UpdateBanner(userID string, path string) error {
+	user, err := s.repo.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.BannerURL = path
+	return s.repo.Update(user)
+}

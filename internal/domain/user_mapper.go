@@ -2,18 +2,22 @@ package domain
 
 func ToPublicUserDTO(u *User) PublicUserDTO {
 	return PublicUserDTO{
-		ID:       u.ID,
-		Username: u.Username,
-		Bio:      u.Bio,
+		ID:        u.ID,
+		Username:  u.Username,
+		Bio:       u.Bio,
+		AvatarURL: u.AvatarURL,
+		BannerURL: u.BannerURL,
 	}
 }
 
 func ToPrivateUserDTO(u *User) PrivateUserDTO {
 	return PrivateUserDTO{
-		ID:       u.ID,
-		Username: u.Username,
-		Email:    u.Email,
-		Bio:      u.Bio,
+		ID:        u.ID,
+		Username:  u.Username,
+		Email:     u.Email,
+		Bio:       u.Bio,
+		AvatarURL: u.AvatarURL,
+		BannerURL: u.BannerURL,
 	}
 }
 

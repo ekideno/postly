@@ -69,12 +69,13 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 		users.GET("/:username", userHandler.UserProfileByUsername)
 	}
 
-	protectedUsers := api.Group("/users")
+	protectedUsers := api.Group("/users/@me")
 	protectedUsers.Use(jwtManager.AuthMiddleware())
 	{
-		protectedUsers.GET("/@me", userHandler.GetMe)
-		protectedUsers.PATCH("/@me", userHandler.UpdateMe)
-		protectedUsers.POST("/@me/avatar", userHandler.UploadAvatar)
+		protectedUsers.GET("", userHandler.GetMe)
+		protectedUsers.PATCH("", userHandler.UpdateMe)
+		protectedUsers.POST("/avatar", userHandler.UploadAvatar)
+		protectedUsers.POST("/banner", userHandler.UploadBanner)
 
 	}
 

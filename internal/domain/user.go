@@ -9,6 +9,7 @@ type User struct {
 	Posts          []Post `gorm:"foreignKey:UserID"`
 	Bio            string `json:"bio"`
 	AvatarURL      string `json:"avatar_url"`
+	BannerURL      string `json:"banner_url"`
 }
 
 type PublicUserDTO struct {
@@ -16,6 +17,7 @@ type PublicUserDTO struct {
 	Username  string `json:"name"`
 	Bio       string `json:"bio"`
 	AvatarURL string `json:"avatar_url"`
+	BannerURL string `json:"banner_url"`
 }
 
 type PrivateUserDTO struct {
@@ -24,6 +26,7 @@ type PrivateUserDTO struct {
 	Email     string `json:"email"`
 	Bio       string `json:"bio"`
 	AvatarURL string `json:"avatar_url"`
+	BannerURL string `json:"banner_url"`
 }
 
 type UpdateUserDTO struct {
@@ -31,6 +34,7 @@ type UpdateUserDTO struct {
 	Username  *string `json:"username,omitempty"`
 	Bio       *string `json:"bio,omitempty"`
 	AvatarURL string  `json:"avatar_url"`
+	BannerURL string  `json:"banner_url"`
 }
 
 type UserRepository interface {
