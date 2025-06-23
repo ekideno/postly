@@ -69,7 +69,6 @@ func (h *UserHandler) UserProfileByID(c *gin.Context) {
 
 func (h *UserHandler) GetMe(c *gin.Context) {
 	userID, ok := c.Get("user_id")
-	fmt.Println(userID)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return

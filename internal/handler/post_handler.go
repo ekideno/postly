@@ -4,7 +4,9 @@ import (
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
+	"path/filepath"
 	"strconv"
 )
 
@@ -17,9 +19,11 @@ func NewPostHandler(postService *service.PostService) *PostHandler {
 }
 
 func (h *PostHandler) Create(c *gin.Context) {
-	var req domain.CreatePostRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	title := c.PostForm("title")
+	content := c.PostForm("content")
+
+	if title == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Title is required"})
 		return
 	}
 
@@ -30,15 +34,38 @@ func (h *PostHandler) Create(c *gin.Context) {
 	}
 	userID := userIDValue.(string)
 
-	post, err := h.postService.Create(userID, &req) // TODO Show author???
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid form data"})
+		return
+	}
+	files := form.File["images"]
+
+	var imagePaths []string
+	for _, file := range files {
+		filename := uuid.NewString() + filepath.Ext(file.Filename)
+		savePath := "./uploads/images/" + filename
+
+		if err := c.SaveUploadedFile(file, savePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
+			return
+		}
+		imagePaths = append(imagePaths, "/uploads/images/"+filename)
+	}
+
+	post, err := h.postService.Create(userID, &domain.CreatePostRequest{
+		Title:   title,
+		Content: content,
+		Images:  imagePaths,
+	})
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	response := ToPostResponse(post)
-
 	c.JSON(http.StatusCreated, gin.H{"post": response})
-
 }
 
 func (h *PostHandler) GetPostsByUser(c *gin.Context) {
@@ -73,15 +100,24 @@ func ToPostResponseList(posts []domain.Post) []domain.PostResponse {
 }
 
 func ToPostResponse(post *domain.Post) domain.PostResponse {
+	var imageURLs []string
+	for _, img := range post.Images {
+		imageURLs = append(imageURLs, img.URL)
+	}
+
 	return domain.PostResponse{
 		ID:        post.ID,
 		Title:     post.Title,
 		Content:   post.Content,
 		CreatedAt: post.CreatedAt,
 		Author: domain.PublicUserDTO{
-			ID:       post.User.ID,
-			Username: post.User.Username,
+			ID:        post.User.ID,
+			Username:  post.User.Username,
+			Bio:       post.User.Bio,
+			AvatarURL: post.User.AvatarURL,
+			BannerURL: post.User.BannerURL,
 		},
+		Images: imageURLs,
 	}
 }
 

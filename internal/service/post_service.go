@@ -23,6 +23,17 @@ func (s *PostService) Create(userID string, postReq *domain.CreatePostRequest) (
 		CreatedAt: time.Now(),
 	}
 
+	var images []domain.PostImage
+	for _, url := range postReq.Images {
+		images = append(images, domain.PostImage{
+			ID:     utils.GenerateSnowflakeID(),
+			PostID: post.ID,
+			URL:    url,
+		})
+	}
+
+	post.Images = images
+
 	err := s.postRepository.Create(post)
 	if err != nil {
 		return nil, err
@@ -32,6 +43,8 @@ func (s *PostService) Create(userID string, postReq *domain.CreatePostRequest) (
 	if err != nil {
 		return nil, err
 	}
+
+	err = s.postRepository.LoadImages(post)
 	return post, nil
 }
 
@@ -41,4 +54,7 @@ func (s *PostService) GetPostsByUser(username string, limit, offset int) ([]doma
 
 func (s *PostService) GetFeed(limit, offset int) ([]domain.Post, error) {
 	return s.postRepository.GetFeed(limit, offset)
+}
+func (s *PostService) LoadImages(post *domain.Post) error {
+	return s.LoadImages(post)
 }

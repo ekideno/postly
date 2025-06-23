@@ -34,5 +34,5 @@ func getDSN(db *config.Database) string {
 }
 
 func Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&domain.User{}, &domain.Post{})
+	return db.AutoMigrate(&domain.User{}, &domain.Post{}, &domain.PostImage{})
 }
