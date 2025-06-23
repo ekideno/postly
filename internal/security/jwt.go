@@ -76,7 +76,7 @@ func (j *JWTManager) AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
+		c.Set("username", claims.Username)
 		c.Set("user_id", claims.UserID)
 		c.Next()
 	}

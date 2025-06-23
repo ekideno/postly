@@ -138,3 +138,25 @@ func (h *PostHandler) GetFeed(c *gin.Context) {
 
 	c.JSON(http.StatusOK, postResponses)
 }
+
+func (h *PostHandler) PostsForMe(c *gin.Context) {
+	usernameRaw, ok := c.Get("username")
+	limitStr := c.DefaultQuery("limit", "20")
+	offsetStr := c.DefaultQuery("offset", "0")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	username, _ := usernameRaw.(string)
+	limit, _ := strconv.Atoi(limitStr)
+	offset, _ := strconv.Atoi(offsetStr)
+	posts, err := h.postService.GetPostsByUser(username, limit, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load posts"})
+		return
+	}
+
+	postResponses := ToPostResponseList(posts)
+	c.JSON(http.StatusOK, postResponses)
+
+}

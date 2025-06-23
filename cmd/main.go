@@ -56,6 +56,9 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	r.Static("/api/uploads", "./uploads")
 
 	api := r.Group("/api")
+	api.GET("/test", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
 
 	auth := api.Group("/auth")
 	{
@@ -76,7 +79,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 		protectedUsers.PATCH("", userHandler.UpdateMe)
 		protectedUsers.POST("/avatar", userHandler.UploadAvatar)
 		protectedUsers.POST("/banner", userHandler.UploadBanner)
-
+		protectedUsers.GET("/posts", postHandler.PostsForMe)
 	}
 
 	api.GET("/posts/feed", postHandler.GetFeed)
