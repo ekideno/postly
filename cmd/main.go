@@ -80,6 +80,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 		protectedUsers.POST("/avatar", userHandler.UploadAvatar)
 		protectedUsers.POST("/banner", userHandler.UploadBanner)
 		protectedUsers.GET("/posts", postHandler.PostsForMe)
+		protectedUsers.POST("/sub", userHandler.Subscribe)
 	}
 
 	api.GET("/posts/feed", postHandler.GetFeed)

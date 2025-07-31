@@ -73,3 +73,14 @@ func (r *UserRepository) GetByUsername(username string) (*domain.User, error) {
 func (r *UserRepository) Update(user *domain.User) error {
 	return r.db.Save(user).Error
 }
+
+func (r *UserRepository) Subscribe(userID string, targetID string) error {
+	var user, target domain.User
+	if err := r.db.First(&user, "id = ?", userID).Error; err != nil {
+		return err
+	}
+	if err := r.db.First(&target, "id = ?", targetID).Error; err != nil {
+		return err
+	}
+	return r.db.Model(&user).Association("Following").Append(&target)
+}

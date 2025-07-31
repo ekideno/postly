@@ -199,3 +199,30 @@ func (h *UserHandler) UploadBanner(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"banner_url": bannerPath})
 }
+
+func (h *UserHandler) Subscribe(c *gin.Context) {
+	userIDRaw, ok := c.Get("user_id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userID, _ := userIDRaw.(string)
+
+	var payload struct {
+		TargetUserID string `json:"target_user_id"`
+	}
+
+	if err := c.ShouldBindJSON(&payload); err != nil || payload.TargetUserID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
+		return
+	}
+
+	err := h.UserService.FollowUser(userID, payload.TargetUserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "subscribed successfully"})
+}

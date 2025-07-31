@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/security"
 	"github.com/ekideno/postly/internal/utils"
@@ -98,4 +99,27 @@ func (s *UserService) UpdateBanner(userID string, path string) error {
 
 	user.BannerURL = path
 	return s.repo.Update(user)
+}
+
+func (s *UserService) FollowUser(fromID, toID string) error {
+	if fromID == toID {
+		return errors.New("cannot follow yourself")
+	}
+
+	_, err := s.repo.GetByID(fromID)
+	if err != nil {
+		return fmt.Errorf("sender not found: %w", err)
+	}
+
+	_, err = s.repo.GetByID(toID)
+	if err != nil {
+		return fmt.Errorf("target not found: %w", err)
+	}
+
+	err = s.repo.Subscribe(fromID, toID)
+	if err != nil {
+		return fmt.Errorf("failed to follow: %w", err)
+	}
+
+	return nil
 }
