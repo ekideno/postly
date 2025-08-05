@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+
 	"github.com/ekideno/postly/internal/domain"
 
 	"gorm.io/gorm"
@@ -23,11 +24,26 @@ func (r *PostRepository) LoadAuthor(post *domain.Post) error {
 	return r.db.Preload("User").First(post, "id = ?", post.ID).Error
 }
 
-func (r *PostRepository) GetPostsByUser(username string, limit, offset int) ([]domain.Post, error) {
+func (r *PostRepository) GetPostsByUsername(username string, limit, offset int) ([]domain.Post, error) {
 	var posts []domain.Post
 	err := r.db.
 		Joins("JOIN users ON users.id = posts.user_id").
 		Where("users.username = ?", username).
+		Preload("User").
+		Preload("Images").
+		Order("posts.created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&posts).Error
+
+	return posts, err
+}
+
+func (r *PostRepository) GetPostsByID(userID string, limit, offset int) ([]domain.Post, error) {
+	var posts []domain.Post
+	err := r.db.
+		Joins("JOIN users ON users.id = posts.user_id").
+		Where("users.id = ?", userID).
 		Preload("User").
 		Preload("Images").
 		Order("posts.created_at DESC").

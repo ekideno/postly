@@ -1,9 +1,10 @@
 package service
 
 import (
+	"time"
+
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/utils"
-	"time"
 )
 
 type PostService struct {
@@ -48,8 +49,12 @@ func (s *PostService) Create(userID string, postReq *domain.CreatePostRequest) (
 	return post, nil
 }
 
-func (s *PostService) GetPostsByUser(username string, limit, offset int) ([]domain.Post, error) {
-	return s.postRepository.GetPostsByUser(username, limit, offset)
+func (s *PostService) GetPostsByUsername(username string, limit, offset int) ([]domain.Post, error) {
+	return s.postRepository.GetPostsByUsername(username, limit, offset)
+}
+
+func (s *PostService) GetPostsByID(userID string, limit, offset int) ([]domain.Post, error) {
+	return s.postRepository.GetPostsByID(userID, limit, offset)
 }
 
 func (s *PostService) GetFeed(limit, offset int) ([]domain.Post, error) {

@@ -26,7 +26,8 @@ type PostResponse struct {
 
 type PostRepository interface {
 	Create(post *Post) error
-	GetPostsByUser(userID string, limit, offset int) ([]Post, error)
+	GetPostsByUsername(username string, limit, offset int) ([]Post, error)
+	GetPostsByID(userID string, limit, offset int) ([]Post, error)
 	LoadAuthor(post *Post) error
 	GetFeed(limit, offset int) ([]Post, error)
 	LoadImages(post *Post) error

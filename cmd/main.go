@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/ekideno/postly/internal/database"
 	"time"
+
+	"github.com/ekideno/postly/internal/database"
 
 	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/handler"
@@ -70,6 +71,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	{
 		users.GET("/:username/posts", postHandler.GetPostsByUser)
 		users.GET("/:username", userHandler.UserProfileByUsername)
+
 	}
 
 	protectedUsers := api.Group("/users/@me")

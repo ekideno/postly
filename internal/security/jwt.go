@@ -2,11 +2,12 @@ package security
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type JWTManager struct {
@@ -76,7 +77,6 @@ func (j *JWTManager) AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set("username", claims.Username)
 		c.Set("user_id", claims.UserID)
 		c.Next()
 	}

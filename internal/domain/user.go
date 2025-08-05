@@ -16,7 +16,7 @@ type User struct {
 
 type PublicUserDTO struct {
 	ID        string `json:"id"`
-	Username  string `json:"name"`
+	Username  string `json:"username"`
 	Bio       string `json:"bio"`
 	AvatarURL string `json:"avatar_url"`
 	BannerURL string `json:"banner_url"`

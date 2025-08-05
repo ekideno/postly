@@ -2,13 +2,14 @@ package handler
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/service"
 	"github.com/ekideno/postly/internal/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"os"
-	"path/filepath"
 )
 
 type UserHandler struct {

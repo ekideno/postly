@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"net/http"
+	"path/filepath"
+	"strconv"
+
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
-	"path/filepath"
-	"strconv"
 )
 
 type PostHandler struct {
@@ -77,7 +78,7 @@ func (h *PostHandler) GetPostsByUser(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
 
-	posts, err := h.postService.GetPostsByUser(username, limit, offset)
+	posts, err := h.postService.GetPostsByUsername(username, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -91,6 +92,28 @@ func (h *PostHandler) GetPostsByUser(c *gin.Context) {
 	})
 }
 
+func (h *PostHandler) GetPostsByID(c *gin.Context) {
+	userID := c.Param("userID")
+
+	limitStr := c.DefaultQuery("limit", "10")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	limit, _ := strconv.Atoi(limitStr)
+	offset, _ := strconv.Atoi(offsetStr)
+
+	posts, err := h.postService.GetPostsByID(userID, limit, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	responses := ToPostResponseList(posts)
+
+	c.JSON(http.StatusOK, gin.H{
+		"posts":  responses,
+		"limit":  limit,
+		"offset": offset,
+	})
+}
 func ToPostResponseList(posts []domain.Post) []domain.PostResponse {
 	result := make([]domain.PostResponse, 0, len(posts))
 	for _, p := range posts {
@@ -140,17 +163,16 @@ func (h *PostHandler) GetFeed(c *gin.Context) {
 }
 
 func (h *PostHandler) PostsForMe(c *gin.Context) {
-	usernameRaw, ok := c.Get("username")
+	userID, ok := c.Get("user_id")
 	limitStr := c.DefaultQuery("limit", "20")
 	offsetStr := c.DefaultQuery("offset", "0")
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-	username, _ := usernameRaw.(string)
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
-	posts, err := h.postService.GetPostsByUser(username, limit, offset)
+	posts, err := h.postService.GetPostsByID(userID.(string), limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load posts"})
 		return
