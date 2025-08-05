@@ -84,3 +84,19 @@ func (r *UserRepository) Subscribe(userID string, targetID string) error {
 	}
 	return r.db.Model(&user).Association("Following").Append(&target)
 }
+
+func (r *UserRepository) GetFollowing(userID string) ([]domain.User, error) {
+	var user domain.User
+
+	err := r.db.Preload("Following").First(&user, "id = ?", userID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	following := make([]domain.User, len(user.Following))
+	for i, u := range user.Following {
+		following[i] = *u
+	}
+
+	return following, nil
+}

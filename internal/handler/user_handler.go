@@ -227,3 +227,28 @@ func (h *UserHandler) Subscribe(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "subscribed successfully"})
 }
+
+func (h *UserHandler) GetFollowing(c *gin.Context) {
+	userIDRaw, ok := c.Get("user_id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userID, _ := userIDRaw.(string)
+
+	following, err := h.UserService.GetFollowing(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	var result []domain.PublicUserDTO
+
+	for _, user := range following {
+		dto := domain.ToPublicUserDTO(&user)
+		result = append(result, dto)
+	}
+
+	c.JSON(http.StatusOK, result)
+
+}

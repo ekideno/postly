@@ -11,7 +11,7 @@ type User struct {
 	AvatarURL      string  `json:"avatar_url"`
 	BannerURL      string  `json:"banner_url"`
 	Following      []*User `gorm:"many2many:user_followings;joinForeignKey:UserID;joinReferences:FollowingID"`
-	Followers      []*User `gorm:"many2many:user_followings;joinForeignKey:FollowingID;joinReferences:UserID"`
+	Followers      []*User `gorm:"many2many:user_GetByUsernamefollowings;joinForeignKey:FollowingID;joinReferences:UserID"`
 }
 
 type PublicUserDTO struct {
@@ -47,6 +47,7 @@ type UserRepository interface {
 	GetByUsername(username string) (*User, error)
 	Update(user *User) error
 	Subscribe(userID string, targetID string) error
+	GetFollowing(userID string) ([]User, error)
 }
 
 type LoginRequest struct {

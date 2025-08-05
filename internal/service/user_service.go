@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	"github.com/ekideno/postly/internal/domain"
 	"github.com/ekideno/postly/internal/security"
 	"github.com/ekideno/postly/internal/utils"
@@ -122,4 +123,8 @@ func (s *UserService) FollowUser(fromID, toID string) error {
 	}
 
 	return nil
+}
+
+func (s *UserService) GetFollowing(userID string) ([]domain.User, error) {
+	return s.repo.GetFollowing(userID)
 }
