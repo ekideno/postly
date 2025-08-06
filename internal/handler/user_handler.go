@@ -94,9 +94,7 @@ func (h *UserHandler) UserProfileByUsername(c *gin.Context) {
 		return
 	}
 
-	public := domain.ToPublicUserDTO(user)
-
-	c.JSON(http.StatusOK, public)
+	c.JSON(http.StatusOK, user)
 }
 
 func (h *UserHandler) UpdateMe(c *gin.Context) {
@@ -124,8 +122,7 @@ func (h *UserHandler) UpdateMe(c *gin.Context) {
 		return
 	}
 
-	response := domain.ToPrivateUserDTO(updatedUser)
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, updatedUser)
 }
 
 func (h *UserHandler) UploadAvatar(c *gin.Context) {
@@ -201,7 +198,7 @@ func (h *UserHandler) UploadBanner(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"banner_url": bannerPath})
 }
 
-func (h *UserHandler) Subscribe(c *gin.Context) {
+func (h *UserHandler) Follow(c *gin.Context) {
 	userIDRaw, ok := c.Get("user_id")
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
@@ -242,13 +239,6 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 	}
 
-	var result []domain.PublicUserDTO
-
-	for _, user := range following {
-		dto := domain.ToPublicUserDTO(&user)
-		result = append(result, dto)
-	}
-
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, following)
 
 }

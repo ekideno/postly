@@ -55,14 +55,20 @@ func (s *UserService) Login(email string, password string) (string, error) {
 	return s.jwtManager.GenerateToken(user.ID, user.Username)
 }
 
-func (s *UserService) GetByUsername(username string) (*domain.User, error) {
-	return s.repo.GetByUsername(username)
-}
+func (s *UserService) GetByUsername(username string) (domain.PublicUserDTO, error) {
+	user, err := s.repo.GetByUsername(username)
+	if err != nil {
+		return domain.PublicUserDTO{}, err
+	}
 
-func (s *UserService) UpdateUserProfile(userID string, dto domain.UpdateUserDTO) (*domain.User, error) {
+	public := domain.ToPublicUserDTO(user)
+	return public, nil
+
+}
+func (s *UserService) UpdateUserProfile(userID string, dto domain.UpdateUserDTO) (domain.PrivateUserDTO, error) {
 	user, err := s.repo.GetByID(userID)
 	if err != nil {
-		return nil, err
+		return domain.PrivateUserDTO{}, err
 	}
 
 	if dto.Email != nil {
@@ -76,10 +82,10 @@ func (s *UserService) UpdateUserProfile(userID string, dto domain.UpdateUserDTO)
 	}
 
 	if err := s.repo.Update(user); err != nil {
-		return nil, err
+		return domain.PrivateUserDTO{}, err
 	}
 
-	return user, nil
+	return domain.ToPrivateUserDTO(user), nil
 }
 
 func (s *UserService) UpdateAvatar(userID string, path string) error {
@@ -117,7 +123,7 @@ func (s *UserService) FollowUser(fromID, toID string) error {
 		return fmt.Errorf("target not found: %w", err)
 	}
 
-	err = s.repo.Subscribe(fromID, toID)
+	err = s.repo.Follow(fromID, toID)
 	if err != nil {
 		return fmt.Errorf("failed to follow: %w", err)
 	}
@@ -125,6 +131,11 @@ func (s *UserService) FollowUser(fromID, toID string) error {
 	return nil
 }
 
-func (s *UserService) GetFollowing(userID string) ([]domain.User, error) {
-	return s.repo.GetFollowing(userID)
+func (s *UserService) GetFollowing(userID string) ([]domain.PublicUserDTO, error) {
+	followingUsers, err := s.repo.GetFollowing(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return domain.MapToPublicUserDTOs(followingUsers), nil
 }

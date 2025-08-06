@@ -28,3 +28,11 @@ func FromRegisterRequest(req *RegisterRequest) *User {
 		Password: req.Password,
 	}
 }
+
+func MapToPublicUserDTOs(users []User) []PublicUserDTO {
+	publicUsers := make([]PublicUserDTO, len(users))
+	for i := range users {
+		publicUsers[i] = ToPublicUserDTO(&users[i])
+	}
+	return publicUsers
+}

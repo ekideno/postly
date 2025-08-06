@@ -82,7 +82,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 		protectedUsers.POST("/avatar", userHandler.UploadAvatar)
 		protectedUsers.POST("/banner", userHandler.UploadBanner)
 		protectedUsers.GET("/posts", postHandler.PostsForMe)
-		protectedUsers.POST("/sub", userHandler.Subscribe)
+		protectedUsers.POST("/follow", userHandler.Follow)
 		protectedUsers.GET("/following", userHandler.GetFollowing)
 	}
 

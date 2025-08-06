@@ -74,7 +74,7 @@ func (r *UserRepository) Update(user *domain.User) error {
 	return r.db.Save(user).Error
 }
 
-func (r *UserRepository) Subscribe(userID string, targetID string) error {
+func (r *UserRepository) Follow(userID string, targetID string) error {
 	var user, target domain.User
 	if err := r.db.First(&user, "id = ?", userID).Error; err != nil {
 		return err

@@ -46,7 +46,7 @@ type UserRepository interface {
 	DeleteByID(id string) error
 	GetByUsername(username string) (*User, error)
 	Update(user *User) error
-	Subscribe(userID string, targetID string) error
+	Follow(userID string, targetID string) error
 	GetFollowing(userID string) ([]User, error)
 }
 
