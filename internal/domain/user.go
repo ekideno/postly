@@ -15,11 +15,13 @@ type User struct {
 }
 
 type PublicUserDTO struct {
-	ID        string `json:"id"`
-	Username  string `json:"username"`
-	Bio       string `json:"bio"`
-	AvatarURL string `json:"avatar_url"`
-	BannerURL string `json:"banner_url"`
+	ID          string `json:"id"`
+	Username    string `json:"username"`
+	Bio         string `json:"bio"`
+	AvatarURL   string `json:"avatar_url"`
+	BannerURL   string `json:"banner_url"`
+	IsFollowing bool   `json:"is_following"`
+	IsMe        bool   `json:"is_me"`
 }
 
 type PrivateUserDTO struct {
@@ -48,6 +50,9 @@ type UserRepository interface {
 	Update(user *User) error
 	Follow(userID string, targetID string) error
 	GetFollowing(userID string) ([]User, error)
+	IsFollowing(followerID, followingID string) (bool, error)
+	Unfollow(userID string, targetID string) error
+	GetFollowedUserIDs(userID string, authorIDs []string) ([]string, error)
 }
 
 type LoginRequest struct {

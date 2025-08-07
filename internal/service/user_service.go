@@ -131,6 +131,13 @@ func (s *UserService) FollowUser(fromID, toID string) error {
 	return nil
 }
 
+func (s *UserService) UnfollowUser(userID, targetID string) error {
+	if userID == targetID {
+		return errors.New("cannot unfollow yourself")
+	}
+	return s.repo.Unfollow(userID, targetID)
+}
+
 func (s *UserService) GetFollowing(userID string) ([]domain.PublicUserDTO, error) {
 	followingUsers, err := s.repo.GetFollowing(userID)
 	if err != nil {
@@ -138,4 +145,25 @@ func (s *UserService) GetFollowing(userID string) ([]domain.PublicUserDTO, error
 	}
 
 	return domain.MapToPublicUserDTOs(followingUsers), nil
+}
+
+func (s *UserService) IsFollowing(userID string, followingID string) (bool, error) {
+	return s.repo.IsFollowing(userID, followingID)
+}
+
+func (s *UserService) GetFollowingMap(userID string, authorIDs []string) (map[string]bool, error) {
+	followingIDs, err := s.repo.GetFollowedUserIDs(userID, authorIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[string]bool, len(authorIDs))
+	for _, id := range authorIDs {
+		result[id] = false
+	}
+	for _, id := range followingIDs {
+		result[id] = true
+	}
+
+	return result, nil
 }

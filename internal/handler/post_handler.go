@@ -13,10 +13,14 @@ import (
 
 type PostHandler struct {
 	postService *service.PostService
+	userService *service.UserService
 }
 
-func NewPostHandler(postService *service.PostService) *PostHandler {
-	return &PostHandler{postService: postService}
+func NewPostHandler(postService *service.PostService, userService *service.UserService) *PostHandler {
+	return &PostHandler{
+		postService: postService,
+		userService: userService,
+	}
 }
 
 func (h *PostHandler) Create(c *gin.Context) {
@@ -148,8 +152,23 @@ func (h *PostHandler) GetFeed(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "20")
 	offsetStr := c.DefaultQuery("offset", "0")
 
-	limit, _ := strconv.Atoi(limitStr)
-	offset, _ := strconv.Atoi(offsetStr)
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
+	}
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+		return
+	}
+
+	userIDRaw, exists := c.Get("user_id")
+	var userID string
+	if exists {
+		userID, _ = userIDRaw.(string)
+
+	}
 
 	posts, err := h.postService.GetFeed(limit, offset)
 	if err != nil {
@@ -157,9 +176,32 @@ func (h *PostHandler) GetFeed(c *gin.Context) {
 		return
 	}
 
-	postResponses := ToPostResponseList(posts)
+	publicPosts := ToPostResponseList(posts)
 
-	c.JSON(http.StatusOK, postResponses)
+	if userID != "" {
+		authorIDSet := make(map[string]struct{})
+		for _, post := range publicPosts {
+			authorIDSet[post.Author.ID] = struct{}{}
+		}
+		authorIDs := make([]string, 0, len(authorIDSet))
+		for id := range authorIDSet {
+			authorIDs = append(authorIDs, id)
+		}
+
+		followingMap, err := h.userService.GetFollowingMap(userID, authorIDs)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get following status"})
+			return
+		}
+
+		for i := range publicPosts {
+			authorID := publicPosts[i].Author.ID
+			publicPosts[i].Author.IsFollowing = followingMap[authorID]
+			publicPosts[i].Author.IsMe = (userID == authorID)
+		}
+	}
+
+	c.JSON(http.StatusOK, publicPosts)
 }
 
 func (h *PostHandler) PostsForMe(c *gin.Context) {

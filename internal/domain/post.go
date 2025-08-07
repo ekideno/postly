@@ -10,7 +10,7 @@ type Post struct {
 	Title     string      `gorm:"not null"`
 	Content   string      `gorm:"type:text"`
 	CreatedAt time.Time   `gorm:"autoCreateTime"`
-	User      User        `gorm:"constraint:OnDelete:CASCADE"`
+	User      *User       `gorm:"constraint:OnDelete:CASCADE"`
 	Images    []PostImage `gorm:"foreignKey:PostID;constraint:OnDelete:CASCADE"`
 }
 
@@ -20,8 +20,7 @@ type PostResponse struct {
 	Content   string        `json:"content"`
 	CreatedAt time.Time     `json:"created_at"`
 	Author    PublicUserDTO `json:"author"`
-	Images    []string      `json:"images"` // ← добавь это поле
-
+	Images    []string      `json:"images"`
 }
 
 type PostRepository interface {

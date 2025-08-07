@@ -88,13 +88,28 @@ func (h *UserHandler) GetMe(c *gin.Context) {
 func (h *UserHandler) UserProfileByUsername(c *gin.Context) {
 	username := c.Param("username")
 
-	user, err := h.UserService.GetByUsername(username)
+	followingUser, err := h.UserService.GetByUsername(username)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	if userIDRaw, exists := c.Get("user_id"); exists {
+		if userID, ok := userIDRaw.(string); ok {
+			if userID == followingUser.ID {
+				followingUser.IsMe = true
+			} else {
+				isFollowing, err := h.UserService.IsFollowing(userID, followingUser.ID)
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check follow status"})
+					return
+				}
+				followingUser.IsFollowing = isFollowing
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, followingUser)
 }
 
 func (h *UserHandler) UpdateMe(c *gin.Context) {
@@ -206,17 +221,9 @@ func (h *UserHandler) Follow(c *gin.Context) {
 	}
 
 	userID, _ := userIDRaw.(string)
+	targetUserID := c.Param("target_id")
 
-	var payload struct {
-		TargetUserID string `json:"target_user_id"`
-	}
-
-	if err := c.ShouldBindJSON(&payload); err != nil || payload.TargetUserID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid payload"})
-		return
-	}
-
-	err := h.UserService.FollowUser(userID, payload.TargetUserID)
+	err := h.UserService.FollowUser(userID, targetUserID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -241,4 +248,27 @@ func (h *UserHandler) GetFollowing(c *gin.Context) {
 
 	c.JSON(http.StatusOK, following)
 
+}
+
+func (h *UserHandler) Unfollow(c *gin.Context) {
+	targetID := c.Param("target_id")
+
+	userIDRaw, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, ok := userIDRaw.(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := h.UserService.UnfollowUser(userID, targetID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Unfollowed successfully"})
 }

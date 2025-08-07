@@ -100,3 +100,42 @@ func (r *UserRepository) GetFollowing(userID string) ([]domain.User, error) {
 
 	return following, nil
 }
+
+func (r *UserRepository) Unfollow(userID string, targetID string) error {
+	var user, target domain.User
+	if err := r.db.First(&user, "id = ?", userID).Error; err != nil {
+		return err
+	}
+
+	if err := r.db.First(&target, "id = ?", targetID).Error; err != nil {
+		return err
+	}
+
+	return r.db.Model(&user).Association("Following").Delete(&target)
+}
+
+func (r *UserRepository) IsFollowing(followerID, followingID string) (bool, error) {
+	var count int64
+	err := r.db.Table("user_followings").
+		Where("user_id = ? AND following_id = ?", followerID, followingID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	fmt.Println(count > 0)
+	return count > 0, nil
+}
+
+func (r *UserRepository) GetFollowedUserIDs(userID string, authorIDs []string) ([]string, error) {
+	var followedIDs []string
+
+	err := r.db.
+		Table("user_followings").
+		Where("user_id = ? AND following_id IN ?", userID, authorIDs).
+		Pluck("following_id", &followedIDs).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return followedIDs, nil
+}

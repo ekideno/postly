@@ -86,7 +86,6 @@ func (j *JWTManager) OptionalAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			// Нет токена — просто идём дальше, без ошибки
 			c.Next()
 			return
 		}
@@ -101,8 +100,6 @@ func (j *JWTManager) OptionalAuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			// Токен есть, но не валидный — тоже пропускаем без ошибки,
-			// чтобы гость мог смотреть публичные страницы
 			c.Next()
 			return
 		}
@@ -113,7 +110,6 @@ func (j *JWTManager) OptionalAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Сохраняем user_id в контекст для последующего использования
 		c.Set("user_id", claims.UserID)
 		c.Next()
 	}

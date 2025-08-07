@@ -49,9 +49,8 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	}
 
 	postService := service.NewPostService(postRepository)
-	postHandler := handler.NewPostHandler(postService)
+	postHandler := handler.NewPostHandler(postService, userService)
 
-	// Initialize router
 	r := gin.Default()
 
 	r.Static("/api/uploads", "./uploads")
@@ -68,6 +67,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	}
 
 	users := api.Group("/users")
+	users.Use(jwtManager.OptionalAuthMiddleware())
 	{
 		users.GET("/:username/posts", postHandler.GetPostsByUser)
 		users.GET("/:username", userHandler.UserProfileByUsername)
@@ -82,11 +82,17 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 		protectedUsers.POST("/avatar", userHandler.UploadAvatar)
 		protectedUsers.POST("/banner", userHandler.UploadBanner)
 		protectedUsers.GET("/posts", postHandler.PostsForMe)
-		protectedUsers.POST("/follow", userHandler.Follow)
 		protectedUsers.GET("/following", userHandler.GetFollowing)
+		protectedUsers.POST("/following/:target_id", userHandler.Follow)
+		protectedUsers.DELETE("/following/:target_id", userHandler.Unfollow)
+
 	}
 
-	api.GET("/posts/feed", postHandler.GetFeed)
+	posts := api.Group("/posts")
+	posts.Use(jwtManager.OptionalAuthMiddleware())
+	{
+		posts.GET("/feed", postHandler.GetFeed)
+	}
 
 	protected := api.Group("/")
 	protected.Use(jwtManager.AuthMiddleware())
