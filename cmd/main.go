@@ -43,6 +43,13 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	userService := service.NewUserService(userRepository, jwtManager)
 	userHandler := handler.NewUserHandler(userService)
 
+	favoriteRepository, err := repository.NewFavoriteRepository(db.Conn)
+	if err != nil {
+		panic(err)
+	}
+	favoriteService := service.NewFavoriteService(favoriteRepository)
+	favoriteHandler := handler.NewFavoriteHandler(favoriteService)
+
 	postRepository, err := repository.NewPostRepository(db.Conn)
 	if err != nil {
 		panic(err)
@@ -85,9 +92,15 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 		protectedUsers.GET("/following", userHandler.GetFollowing)
 		protectedUsers.POST("/following/:target_id", userHandler.Follow)
 		protectedUsers.DELETE("/following/:target_id", userHandler.Unfollow)
-
 	}
 
+	favorites := protectedUsers.Group("/favorites")
+	{
+		favorites.POST("/:imageID", favoriteHandler.AddFavorite)
+		favorites.DELETE("/:imageID", favoriteHandler.RemoveFavorite)
+		favorites.GET("/", favoriteHandler.GetFavorites)
+
+	}
 	posts := api.Group("/posts")
 	posts.Use(jwtManager.OptionalAuthMiddleware())
 	{

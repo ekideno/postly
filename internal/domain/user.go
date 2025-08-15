@@ -1,17 +1,18 @@
 package domain
 
 type User struct {
-	ID             string  `gorm:"primaryKey"`
-	Username       string  `gorm:"uniqueIndex;not null"`
-	Email          string  `gorm:"uniqueIndex;not null"`
-	Password       string  `gorm:"-"`
-	HashedPassword string  `gorm:"not null"`
-	Posts          []Post  `gorm:"foreignKey:UserID"`
-	Bio            string  `json:"bio"`
-	AvatarURL      string  `json:"avatar_url"`
-	BannerURL      string  `json:"banner_url"`
-	Following      []*User `gorm:"many2many:user_followings;joinForeignKey:UserID;joinReferences:FollowingID"`
-	Followers      []*User `gorm:"many2many:user_GetByUsernamefollowings;joinForeignKey:FollowingID;joinReferences:UserID"`
+	ID             string      `gorm:"primaryKey"`
+	Username       string      `gorm:"uniqueIndex;not null"`
+	Email          string      `gorm:"uniqueIndex;not null"`
+	Password       string      `gorm:"-"`
+	HashedPassword string      `gorm:"not null"`
+	Posts          []Post      `gorm:"foreignKey:UserID"`
+	Bio            string      `json:"bio"`
+	AvatarURL      string      `json:"avatar_url"`
+	BannerURL      string      `json:"banner_url"`
+	Following      []*User     `gorm:"many2many:user_followings;joinForeignKey:UserID;joinReferences:FollowingID"`
+	Followers      []*User     `gorm:"many2many:user_GetByUsernamefollowings;joinForeignKey:FollowingID;joinReferences:UserID"`
+	Favorites      []PostImage `gorm:"many2many:favorites;joinForeignKey:UserID;JoinReferences:ImageID"`
 }
 
 type PublicUserDTO struct {

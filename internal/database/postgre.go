@@ -2,11 +2,11 @@ package database
 
 import (
 	"fmt"
+
 	"github.com/ekideno/postly/internal/config"
 	"github.com/ekideno/postly/internal/domain"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type PostgreDatabase struct {
@@ -15,9 +15,7 @@ type PostgreDatabase struct {
 
 func PostgreConnect(cfg *config.Config) (*PostgreDatabase, error) {
 	dsn := getDSN(&cfg.Database)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
+	db, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
 		return nil, err
 	}
