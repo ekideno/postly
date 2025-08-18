@@ -197,7 +197,7 @@ func (h *PostHandler) GetFeed(c *gin.Context) {
 		for i := range publicPosts {
 			authorID := publicPosts[i].Author.ID
 			publicPosts[i].Author.IsFollowing = followingMap[authorID]
-			publicPosts[i].Author.IsMe = (userID == authorID)
+			publicPosts[i].Author.IsMe = userID == authorID
 		}
 	}
 

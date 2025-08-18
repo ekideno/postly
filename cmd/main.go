@@ -20,7 +20,10 @@ func main() {
 	r := setupRouter(cfg)
 
 	utils.InitSnowflake(1)
-	r.Run(":8080")
+	err := r.Run(":8080")
+	if err != nil {
+		return
+	}
 }
 
 func setupRouter(cfg *config.Config) *gin.Engine {
