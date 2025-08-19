@@ -167,7 +167,7 @@ func (h *PostHandler) GetFeed(c *gin.Context) {
 
 	posts, err := h.postService.GetFeed(limit, offset)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load feed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
