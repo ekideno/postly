@@ -13,6 +13,7 @@ var (
 	ErrInvalidPostData   = errors.New("invalid post data")
 	ErrInvalidUsername   = errors.New("username cannot be empty")
 	ErrInvalidPagination = errors.New("limit and offset must be non-negative")
+	ErrEmptyPostContent  = errors.New("post must have either title or content")
 )
 
 type PostService struct {
@@ -86,7 +87,7 @@ func (s *PostService) validatePagination(limit, offset int) error {
 
 func (s *PostService) validateCreateRequest(userID string, postReq *domain.CreatePostRequest) error {
 	if userID == "" {
-		return ErrInvalidUsername
+		return ErrInvalidUserID
 	}
 
 	if postReq == nil {
@@ -94,7 +95,7 @@ func (s *PostService) validateCreateRequest(userID string, postReq *domain.Creat
 	}
 
 	if postReq.Title == "" && postReq.Content == "" {
-		return errors.New("post must have either title or content")
+		return ErrEmptyPostContent
 	}
 
 	return nil
