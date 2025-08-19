@@ -127,11 +127,6 @@ func ToPostResponseList(posts []domain.Post) []domain.PostResponse {
 }
 
 func ToPostResponse(post *domain.Post) domain.PostResponse {
-	var imageURLs []string
-	for _, img := range post.Images {
-		imageURLs = append(imageURLs, img.URL)
-	}
-
 	return domain.PostResponse{
 		ID:        post.ID,
 		Title:     post.Title,
@@ -144,7 +139,7 @@ func ToPostResponse(post *domain.Post) domain.PostResponse {
 			AvatarURL: post.User.AvatarURL,
 			BannerURL: post.User.BannerURL,
 		},
-		Images: imageURLs,
+		Images: post.Images,
 	}
 }
 
@@ -197,7 +192,7 @@ func (h *PostHandler) GetFeed(c *gin.Context) {
 		for i := range publicPosts {
 			authorID := publicPosts[i].Author.ID
 			publicPosts[i].Author.IsFollowing = followingMap[authorID]
-			publicPosts[i].Author.IsMe = userID == authorID
+			publicPosts[i].Author.IsMe = (userID == authorID)
 		}
 	}
 

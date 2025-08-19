@@ -33,10 +33,9 @@ func (h *FavoriteHandler) RemoveFavorite(c *gin.Context) {
 	imageID := c.Param("imageID")
 
 	if err := h.FavoriteService.RemoveFavorite(userID.(string), imageID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to remove from favorites"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "failed to remove favorite"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": "removed from favorites"})
 }
 

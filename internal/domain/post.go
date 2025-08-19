@@ -20,7 +20,7 @@ type PostResponse struct {
 	Content   string        `json:"content"`
 	CreatedAt time.Time     `json:"created_at"`
 	Author    PublicUserDTO `json:"author"`
-	Images    []string      `json:"images"`
+	Images    []PostImage   `json:"images"`
 }
 
 type PostRepository interface {
@@ -39,7 +39,7 @@ type CreatePostRequest struct {
 }
 
 type PostImage struct {
-	ID     string `gorm:"primaryKey"`
-	PostID string `gorm:"not null;index"`
-	URL    string `gorm:"not null"`
+	ID     string `gorm:"primaryKey" json:"id"`
+	PostID string `gorm:"not null;index" json:"post_id"`
+	URL    string `gorm:"not null" json:"url"`
 }

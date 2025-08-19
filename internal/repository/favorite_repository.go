@@ -30,18 +30,14 @@ func (r *FavoriteRepository) AddFavorite(userID, imageID string) error {
 }
 
 func (r *FavoriteRepository) RemoveFavorite(userID, imageID string) error {
-	var user domain.User
-	if err := r.db.First(&user, "id = ?", userID).Error; err != nil {
-		return err
+	result := r.db.Where("user_id = ? AND image_id = ?", userID, imageID).Delete(&domain.Favorite{})
+	if result.Error != nil {
+		return result.Error
 	}
-
-	var image domain.PostImage
-	if err := r.db.First(&image, "id = ?", imageID).Error; err != nil {
-		return fmt.Errorf("image not found")
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("favorite not found")
 	}
-
-	return r.db.Model(&user).Association("Favorites").Delete(&image)
-
+	return nil
 }
 
 func (r *FavoriteRepository) GetFavorites(userID string, limit, offset int) ([]domain.PostImage, error) {
