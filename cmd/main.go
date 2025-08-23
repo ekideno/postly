@@ -108,6 +108,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	posts.Use(jwtManager.OptionalAuthMiddleware())
 	{
 		posts.GET("/feed", postHandler.GetFeed)
+		posts.GET("/:id", postHandler.GetPostByID)
 	}
 
 	protected := api.Group("/")

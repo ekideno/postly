@@ -39,7 +39,7 @@ func (r *PostRepository) GetPostsByUsername(username string, limit, offset int) 
 	return posts, err
 }
 
-func (r *PostRepository) GetPostsByID(userID string, limit, offset int) ([]domain.Post, error) {
+func (r *PostRepository) GetPostsByUserID(userID string, limit, offset int) ([]domain.Post, error) {
 	var posts []domain.Post
 	err := r.db.
 		Joins("JOIN users ON users.id = posts.user_id").
@@ -72,4 +72,12 @@ func (r *PostRepository) LoadImages(post *domain.Post) error {
 	fmt.Println(post)
 	return nil
 
+}
+
+func (r *PostRepository) GetPostByID(postID string) (domain.Post, error) {
+	var post domain.Post
+	if err := r.db.Preload("User").Preload("Images").First(&post, "id = ?", postID).Error; err != nil {
+		return domain.Post{}, err
+	}
+	return post, nil
 }

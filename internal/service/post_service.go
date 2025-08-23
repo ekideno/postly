@@ -51,11 +51,11 @@ func (s *PostService) GetPostsByUsername(username string, limit, offset int) ([]
 	return s.postRepository.GetPostsByUsername(username, limit, offset)
 }
 
-func (s *PostService) GetPostsByID(userID string, limit, offset int) ([]domain.Post, error) {
+func (s *PostService) GetPostsByUserID(userID string, limit, offset int) ([]domain.Post, error) {
 	if err := s.validateUserIDAndPagination(userID, limit, offset); err != nil {
 		return nil, err
 	}
-	return s.postRepository.GetPostsByID(userID, limit, offset)
+	return s.postRepository.GetPostsByUserID(userID, limit, offset)
 }
 
 func (s *PostService) GetFeed(limit, offset int) ([]domain.Post, error) {
@@ -143,4 +143,8 @@ func (s *PostService) loadPostRelations(post *domain.Post) error {
 	}
 
 	return nil
+}
+
+func (s *PostService) GetPostByID(postID string) (domain.Post, error) {
+	return s.postRepository.GetPostByID(postID)
 }

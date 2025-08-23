@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 	"github.com/ekideno/postly/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type PostHandler struct {
@@ -96,7 +98,7 @@ func (h *PostHandler) GetPostsByUser(c *gin.Context) {
 	})
 }
 
-func (h *PostHandler) GetPostsByID(c *gin.Context) {
+func (h *PostHandler) GetPostsByUserID(c *gin.Context) {
 	userID := c.Param("userID")
 
 	limitStr := c.DefaultQuery("limit", "10")
@@ -105,7 +107,7 @@ func (h *PostHandler) GetPostsByID(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
 
-	posts, err := h.postService.GetPostsByID(userID, limit, offset)
+	posts, err := h.postService.GetPostsByUserID(userID, limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -209,7 +211,7 @@ func (h *PostHandler) PostsForMe(c *gin.Context) {
 	}
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
-	posts, err := h.postService.GetPostsByID(userID.(string), limit, offset)
+	posts, err := h.postService.GetPostsByUserID(userID.(string), limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load posts"})
 		return
@@ -218,4 +220,22 @@ func (h *PostHandler) PostsForMe(c *gin.Context) {
 	postResponses := ToPostResponseList(posts)
 	c.JSON(http.StatusOK, postResponses)
 
+}
+
+func (h *PostHandler) GetPostByID(c *gin.Context) {
+	postID := c.Param("id")
+
+	post, err := h.postService.GetPostByID(postID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "post not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	publicPost := ToPostResponse(&post)
+
+	c.JSON(http.StatusOK, publicPost)
 }
